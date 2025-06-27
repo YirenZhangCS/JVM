@@ -66,6 +66,35 @@ hb_excp_str_to_type (char * str)
 }
 
 
+int get_excp_line(u2 curr_pc){
+	u2 line_num = 1;
+
+	for(u2 i = 0; i < cur_thread->cur_frame->minfo->line_info->line_num_tbl.line_tbl_len; i++){
+		if(cur_thread->cur_frame->pc > cur_thread->cur_frame->minfo->line_info->line_num_tbl.entries[i].start_pc)
+			line_num = cur_thread->cur_frame->minfo->line_info->line_num_tbl.entries[i].line_num;
+	}
+
+	return line_num;
+}
+
+#define EXCP_MSG_LEN 128
+
+char* get_excp_message(obj_ref_t * eref){
+	native_obj_t * obj = (native_obj_t*)eref->heap_ptr;
+	char* msg = (char*)malloc(EXCP_MSG_LEN);
+	sprintf(msg, "Exception in thread \"%s\" %s\n\tat %s.%s(%s:%d)",
+		cur_thread->name,
+		obj->class->name,
+		cur_thread->class->name, 
+		cur_thread->cur_frame->minfo->name, 
+		cur_thread->class->src_file, 
+		get_excp_line(cur_thread->cur_frame->pc));
+
+	return msg;
+}
+
+
+
 
 /*
  * Throws an exception given an internal ID
@@ -81,7 +110,22 @@ hb_excp_str_to_type (char * str)
 void
 hb_throw_and_create_excp (u1 type)
 {
-    HB_ERR("%s NOT IMPLEMENTED", __func__);
+    //HB_ERR("%s NOT IMPLEMENTED", __func__);
+    obj_ref_t* or = NULL;
+	const char * excp_str = excp_strs[type];
+
+	java_class_t* ex_cls = hb_get_or_load_class(excp_str);
+
+	if(!ex_cls){
+		HB_ERR("Could not resolve class ref in %s", __func__);
+		exit(EXIT_FAILURE);
+	}
+
+	or = gc_obj_alloc(ex_cls);
+
+	hb_invoke_ctor(or);
+
+	hb_throw_exception(or);
 }
 
 
@@ -144,6 +188,43 @@ get_excp_str (obj_ref_t * eref)
 void
 hb_throw_exception (obj_ref_t * eref)
 {
-    HB_ERR("%s NOT IMPLEMENTED", __func__);
+    //HB_ERR("%s NOT IMPLEMENTED", __func__);
+    //exit(EXIT_FAILURE);
+    native_obj_t * obj = (native_obj_t*)eref->heap_ptr;
+	method_info_t* mi;
+	code_attr_t* ca;
+
+	char* excp_msg = get_excp_message(eref);
+
+	do{
+		if(!cur_thread->cur_frame){
+			HB_INFO("%s", excp_msg);
+			free(ca);
+			exit(EXIT_FAILURE);
+		}
+
+		mi = cur_thread->cur_frame->minfo;
+		ca = mi->code_attr;
+
+		for(u2 i = 0; i < ca->excp_table_len; i++){
+			if(cur_thread->cur_frame->pc > ca->excp_table[i].end_pc
+			|| cur_thread->cur_frame->pc < ca->excp_table[i].start_pc){
+				continue;
+			}
+
+			if(ca->excp_table[i].catch_type == 0){
+				cur_thread->cur_frame->pc = ca->excp_table[i].handler_pc;
+				return;
+			}
+
+			java_class_t* target_cls = hb_resolve_class(ca->excp_table[i].catch_type, mi->owner);
+
+			if(target_cls == obj->class){
+				cur_thread->cur_frame->pc = ca->excp_table[i].handler_pc;
+				return;
+			}
+		}
+	} while(!hb_pop_frame(cur_thread));
+
     exit(EXIT_FAILURE);
 }
