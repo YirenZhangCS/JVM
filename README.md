@@ -1,4 +1,4 @@
-# Hawkbeans
+# JVM
 A Java Virtual Machine using C to explore the development of HLL features such as polymorphism, object orientation, automatic memory management, exceptions and native methods.
 
 Below are a list of features **not** supported in this JVM:
