@@ -1,17 +1,6 @@
 # JVM
 A Java Virtual Machine using C to explore the development of HLL features such as polymorphism, object orientation, automatic memory management, exceptions and native methods.
 
-Below are a list of features **not** supported in this JVM:
-
-* Full exception support: only the basics.
-* Reflection (required for assertions)
-* Floating point math is hardly tested
-* User-defined class loaders
-* Very limited JNI
-* No JIT compilation
-* Wide word (long/double) support is very limited
-* No actual protection is implemented (i.e. private/public etc.)
-
 This JVM was developed referencing Oracle's [Java Virtual Machine
 Specification](https://docs.oracle.com/javase/specs/jvms/se8/html/index.html).
 
