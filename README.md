@@ -1,11 +1,5 @@
-[![Build Status](https://travis-ci.com/khale/hawkbeans-skeleton.svg?branch=master)](https://travis-ci.com/khale/hawkbeans-skeleton)
 # Hawkbeans
-Hawkbeans is a small (~6K LOC), MIT-licensed JVM written in C and intended for
-educational purposes. It does **not** meet the Java specification (not even
-close), but includes enough functionality for students to become familiar with
-concepts important to the JVM, viz. byte code interpretation, exceptions,
-class loading, resolution of symbolic references, exceptions, stack frames,
-and garbage collection.
+A Java Virtual Machine using C to explore the development of HLL features such as polymorphism, object orientation, automatic memory management, exceptions and native methods.
 
 Below are a list of features **not** supported in this JVM:
 
@@ -18,11 +12,7 @@ Below are a list of features **not** supported in this JVM:
 * Wide word (long/double) support is very limited
 * No actual protection is implemented (i.e. private/public etc.)
 
-Hawkbeans uses a simple buddy allocator with power of 2 free lists
-for heap management. This code was taken from several other
-OS code bases.
-
-Hawkbeans was developed referencing Oracle's [Java Virtual Machine
+This JVM was developed referencing Oracle's [Java Virtual Machine
 Specification](https://docs.oracle.com/javase/specs/jvms/se8/html/index.html).
 
 
@@ -67,7 +57,3 @@ The source is organized into the following directories:
 * `testcode`: A set of simple Java programs to test functionality
 * `bin`: This is where the build toolchain puts binaries.
 
-
-### Questions/Concerns ###
-
-Contact Kyle C. Hale <khale@cs.iit.edu> for questions/comments.
